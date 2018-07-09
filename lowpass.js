@@ -16,7 +16,7 @@ export default class Lowpass {
     this.coef = Math.sqrt(costh * costh - 1) - costh;
   }
 
-  render(input) {
+  process(input) {
     this.prev = input * (1 + this.coef) - (this.prev * this.coef);
     return this.prev;
   }
