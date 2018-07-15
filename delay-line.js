@@ -4,11 +4,11 @@ export default class DelayLine {
     this.writePos = 0;
     this.sampleRate = sampleRate;
     this.delayMs = delayMs;
-    this.maxDelaySamples = Math.ceil(this.toSamples(maxDelayMs));
-    this.maxDelayMs = this.maxDelaySamples * 1000 / this.sampleRate;
+    this.bufferSize = Math.ceil(this.toSamples(maxDelayMs));
+    this.maxDelayMs = this.bufferSize * 1000 / this.sampleRate;
 
     this.setDelayMs(delayMs);
-    this.buffer = new Float32Array(this.maxDelaySamples);
+    this.buffer = new Float32Array(this.bufferSize);
   }
 
   static linInterp(x1, x2, y1, y2, x) {
@@ -41,21 +41,21 @@ export default class DelayLine {
 
     this.readPos = this.writePos - delaySamples;
     if (this.readPos < 0) {
-      this.readPos += this.maxDelaySamples;
+      this.readPos += this.bufferSize;
     }
   }
 
   readDelay() {
     const yn = this.buffer[this.readPos];
-    const readPosPrev = this.readPos < 1 ? this.maxDelaySamples - 1 : this.readPos - 1;
+    const readPosPrev = this.readPos < 1 ? this.bufferSize - 1 : this.readPos - 1;
     const ynPrev = this.buffer[readPosPrev];
     return DelayLine.linInterp(0, 1, yn, ynPrev, this.delayFrac);
   }
 
   writeDelay(input) {
     this.buffer[this.writePos] = input;
-    this.writePos = (this.writePos + 1) % this.maxDelaySamples;
-    this.readPos = (this.readPos + 1) % this.maxDelaySamples;
+    this.writePos = (this.writePos + 1) % this.bufferSize;
+    this.readPos = (this.readPos + 1) % this.bufferSize;
   }
 
   reset() {

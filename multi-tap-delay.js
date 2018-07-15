@@ -25,10 +25,6 @@ export default class MultiTapDelay {
     return ms * 0.001 * this.sampleRate;
   }
 
-  getMaxDelayMs() {
-    return this.maxDelayMs;
-  }
-
   getReadPos(delayMs) {
     if (delayMs > this.maxDelayMs) {
       throw new Error(`delayMs (${delayMs}) is greater than ${this.maxDelayMs}.`);
@@ -52,11 +48,6 @@ export default class MultiTapDelay {
     return accumulated;
   }
 
-  writeDelay(input) {
-    this.buffer[this.writePos] = input;
-    this.writePos = (this.writePos + 1) % this.bufferSize;
-  }
-
   reset() {
     this.writePos = 0;
     this.buffer.fill(0);
@@ -64,7 +55,8 @@ export default class MultiTapDelay {
 
   process(input) {
     const out = this.readDelayTaps();
-    this.writeDelay(input);
+    this.buffer[this.writePos] = input;
+    this.writePos = (this.writePos + 1) % this.bufferSize;
     return out;
   }
 }
